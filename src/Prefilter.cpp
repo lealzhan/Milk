@@ -9,7 +9,6 @@
 
 #include "File.hpp"
 #include "Image.hpp"
-#include "GLTextureUtility.hpp"
 #include "GLGraphicsSystem.hpp"
 
 static LPCSTR stringToLPCSTR(std::string orig)
@@ -65,21 +64,21 @@ bool Prefilter::Process(int argc, char *argv[])
 			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 		};
 
-		int width, height;
-		GLTextureUtility::getImageSize(image4processing.c_str(), width, height);
-
 		std::cout << "InitGLGraphicsSystem:" << std::endl;
-		GLGraphicsSystem::InitGLGraphicsSystem(argc, argv, width, height);
+		GLGraphicsSystem::InitGLGraphicsSystem(argc, argv, 4, 4);
 		
+		int width, height;
+
 		//
 		// Part 0: Convert Lat-long Environment to Cubemap
 		//
-		GLuint image4processing_text_id;
-		GLTextureUtility::loadHDRImagefileAndMapToOpenGLTextureBuffer(image4processing.c_str(), image4processing_text_id, width, height);
+		float * bits;
+		int channel_numb;
+		Image::ReadHDRImg(bits, image4processing, width, height, channel_numb);
+		GLuint image4processing_text_id = GLGraphicsSystem::CreateTexture2DHDR(width, height, GL_RGB32F, GL_RGB, bits);
 
 		GLuint envCubemap = GLGraphicsSystem::CreateTextureCubeHDR(1024, 1024, 3);
-
-		GLuint output_texture_id = GLGraphicsSystem::CreateTexture2DHDR(1024, 1024, 3);
+		GLuint temporatyOutputTextureId = GLGraphicsSystem::CreateTexture2DHDR(1024, 1024, 3);
 
 		std::string quad_vs = m_strShaderDir + "cubemap.vs";
 		std::string fs = m_strShaderDir + "equirectangularToCubemap.fs";
@@ -121,11 +120,11 @@ bool Prefilter::Process(int argc, char *argv[])
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			GLGraphicsSystem::UseProgram(0);
 
-			GLGraphicsSystem::FrameBuffer2ReadbackTextureHandle(captureFBO, 0, output_texture_id, 1024, 1024);
+			GLGraphicsSystem::FrameBuffer2ReadbackTextureHandle(captureFBO, 0, temporatyOutputTextureId, 1024, 1024);
 			glDeleteFramebuffers(1, &captureFBO);
 			GLGraphicsSystem::Finish();
 
-			pPixelData[i] = (float*)GLGraphicsSystem::TextureBuffer2DHDR2HostMem(output_texture_id, 1024, 1024, 3);
+			pPixelData[i] = (float*)GLGraphicsSystem::TextureBuffer2DHDR2HostMem(temporatyOutputTextureId, 1024, 1024, 3);
 		}
 
 		for (unsigned int i = 0; i < nFaceCount; ++i)
@@ -270,7 +269,7 @@ bool Prefilter::Process(int argc, char *argv[])
 		glDeleteProgram(gltfCubemapPrefilterSpecularShader);
 
 		glDeleteTextures(1, &image4processing_text_id);
-		glDeleteTextures(1, &output_texture_id);
+		glDeleteTextures(1, &temporatyOutputTextureId);
 		glDeleteTextures(1, &diffuse_output_texture_id);
 
 		glDeleteTextures(1, &envCubemap);

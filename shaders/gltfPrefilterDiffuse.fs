@@ -22,8 +22,17 @@ const int const_smaples = 4096;
 // layout (location = 0) out vec4 ob_fragColor;
 
 uniform samplerCube environmentMap;
+uniform int hdr;
+
 in vec3 WorldPos;
 out vec4 ob_fragColor;
+
+// Hejl Richard tone map
+// see: http://filmicworlds.com/blog/filmic-tonemapping-operators/
+vec3 toneMapHejlRichard(vec3 color)
+{
+	return (color*(6.2*color + .5)) / (color*(6.2*color + 1.7) + 0.06);
+}
 
 // vec2 randomHammersley(uint i, uint n)
 // {
@@ -141,4 +150,5 @@ void main(void)
     }
     
     ob_fragColor = vec4(colorLambert.rgb / colorLambert.w, 1.0);
+	if (hdr==0) { ob_fragColor.rgb = toneMapHejlRichard(ob_fragColor.rgb); }
 }
