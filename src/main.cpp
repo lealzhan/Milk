@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
 		"C:/Users/lealz/Desktop/trunk/Milk/data/image/helipad.hdr",
 		"C:/Users/lealz/Desktop/trunk/Milk/shaders/",
 		"C:/Users/lealz/Desktop/trunk/Milk/result/",
-		false
+		false,
+		true
 		);
 	return newPrefilter.Process(argc, argv);
 }

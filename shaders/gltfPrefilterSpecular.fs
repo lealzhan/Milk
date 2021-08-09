@@ -18,6 +18,7 @@ const int const_smaples = 4096;
 uniform float u_roughness;
 uniform samplerCube environmentMap;
 uniform int hdr;
+uniform int p20;
 
 in vec3 WorldPos;
 out vec4 ob_fragColor;
@@ -147,7 +148,8 @@ vec4 renderCookTorrance(vec2 randomPoint, vec3 N, float roughness)
 void main(void)
 {
     vec3 N = normalize(WorldPos);
-
+	if(p20!=0)
+		N = mat3(1,0,0, 0,0,1, 0,1,0) * N; //gaode coordinate transform
     vec4 colorCookTorrance = vec4(0.0, 0.0, 0.0, 0.0);
 
     for (uint sampleIndex = 0; sampleIndex < const_smaples; sampleIndex++)

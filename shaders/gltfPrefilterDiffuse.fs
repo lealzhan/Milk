@@ -23,6 +23,7 @@ const int const_smaples = 4096;
 
 uniform samplerCube environmentMap;
 uniform int hdr;
+uniform int p20;
 
 in vec3 WorldPos;
 out vec4 ob_fragColor;
@@ -130,6 +131,9 @@ vec4 renderLambert(vec2 randomPoint, vec3 N)
 void main(void)
 {
     vec3 N = normalize(WorldPos);//v_normal);
+	if(p20!=0)
+		N = mat3(1,0,0, 0,0,1, 0,1,0) * N; //gaode coordinate transform
+		
     //ob_fragColor = texture(environmentMap, N, 0); return;//test
     vec4 colorLambert = vec4(0.0, 0.0, 0.0, 0.0);
 

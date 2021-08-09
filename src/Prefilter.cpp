@@ -174,6 +174,9 @@ bool Prefilter::Process(int argc, char *argv[])
 
 			UNIFORM_UNION hdr; hdr.intVal = (int)m_bHDR;
 			GLGraphicsSystem::setUniform(gltfCubemapPrefilterDiffuseShader, "hdr", UNIFORM_TYPE::INT_TYPE, hdr);
+			
+			UNIFORM_UNION p20; p20.intVal = (int)m_bP20;
+			GLGraphicsSystem::setUniform(gltfCubemapPrefilterDiffuseShader, "p20", UNIFORM_TYPE::INT_TYPE, p20);
 
 			UNIFORM_UNION o; o.intVal = 0;
 			GLGraphicsSystem::setUniform(gltfCubemapPrefilterDiffuseShader, "environmentMap", UNIFORM_TYPE::INT_TYPE, o);
@@ -259,6 +262,9 @@ bool Prefilter::Process(int argc, char *argv[])
 
 				UNIFORM_UNION hdr; hdr.intVal = (int)m_bHDR;
 				GLGraphicsSystem::setUniform(gltfCubemapPrefilterSpecularShader, "hdr", UNIFORM_TYPE::INT_TYPE, hdr);
+
+				UNIFORM_UNION p20; p20.intVal = (int)m_bP20;
+				GLGraphicsSystem::setUniform(gltfCubemapPrefilterSpecularShader, "p20", UNIFORM_TYPE::INT_TYPE, p20);
 
 				UNIFORM_UNION o; o.intVal = 0;
 				GLGraphicsSystem::setUniform(gltfCubemapPrefilterSpecularShader, "environmentMap", UNIFORM_TYPE::INT_TYPE, o);
