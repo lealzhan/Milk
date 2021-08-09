@@ -67,25 +67,17 @@ public:
 	static void RenderCube();
 
 	static void FrameBuffer2ReadbackTextureHandle(GLuint _framebuffer_handle, GLuint _attachment_id, GLuint readback_texture_handle_, int width, int height);
-
 	static void* TextureBuffer2D2HostMem(GLuint texture_id, int width, int height, int channel_numb = 3);
 	static float* TextureBuffer2DHDR2HostMem(GLuint texture_id, int width, int height, int channel_numb = 3);
 
 	static GLuint CreateTexture2D(int width, int height, int channel_numb = 3);
-
-	static GLuint CreateTexture2D(int width, int height, GLuint internal_rgb_mode, GLuint data_rgb_mode, void* host_data);
-
 	static GLuint CreateTexture2DHDR(int width, int height, int channel_numb);
-
 	static GLuint CreateTexture2DHDR(int width, int height, GLuint internal_rgb_mode, GLuint data_rgb_mode, void* host_data);
-
-	static GLuint CreateTextureCube(int width, int height, GLuint internal_rgb_mode, GLuint data_rgb_mode, unsigned char * host_data[6]);
 
 	static GLuint CreateTextureCube(int width, int height, int channel_numb, bool generate_mipmap = false);
 	static GLuint CreateTextureCubeHDR(int width, int height, int channel_numb, bool generate_mipmap = false);
 
 	static void GenerateTextureCubeMipmap(GLuint texture_id);
-
 	static void GenerateTexture2DMipmap(GLuint texture_id);
 
 	static GLuint CreateFrameBuffer(int width, int height, GLuint fbo_color_attachment_0_tex_id);

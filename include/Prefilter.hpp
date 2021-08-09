@@ -21,5 +21,5 @@ private:
 	std::string m_strImage; //Input HDR lat-long Environment Image
 	std::string m_strShaderDir;
 	std::string m_strOutputDir;
-	bool m_bHDR;
+	bool m_bHDR;// true: output HDR format; false : output PNG format
 };

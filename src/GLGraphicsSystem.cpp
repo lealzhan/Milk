@@ -174,20 +174,6 @@ GLuint GLGraphicsSystem::CreateTexture2D(int width, int height, int channel_numb
 	return tex_id;
 }
 
-GLuint GLGraphicsSystem::CreateTexture2D(int width, int height, GLuint internal_rgb_mode, GLuint data_rgb_mode, void* host_data)
-{
-	GLuint tex_id;
-	glGenTextures(1, &tex_id);
-	glBindTexture(GL_TEXTURE_2D, tex_id);
-	glTexImage2D(GL_TEXTURE_2D, 0, internal_rgb_mode, width, height, 0, data_rgb_mode, GL_UNSIGNED_BYTE, host_data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	return tex_id;
-}
-
 GLuint GLGraphicsSystem::CreateTexture2DHDR(int width, int height, int channel_numb)
 {
 	GLuint tex_id;
@@ -264,25 +250,6 @@ GLuint GLGraphicsSystem::CreateTextureCube(int width, int height, int channel_nu
 	return tex_id;
 }
 
-GLuint GLGraphicsSystem::CreateTextureCube(int width, int height, GLuint internal_rgb_mode, GLuint data_rgb_mode, unsigned char * host_data[6])
-{
-	GLuint tex_id;
-	glGenTextures(1, &tex_id);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, tex_id);
-
-	for (int i = 0; i < 6; i++){
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internal_rgb_mode, width, height, 0, /*GL_RGBA*/data_rgb_mode, GL_UNSIGNED_BYTE, host_data[i]);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	return tex_id;
-}
-
 void GLGraphicsSystem::GenerateTexture2DMipmap(GLuint texture_id)
 {
 	glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -296,7 +263,6 @@ void GLGraphicsSystem::GenerateTextureCubeMipmap(GLuint texture_id)
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
-
 
 GLuint GLGraphicsSystem::CreateFrameBuffer(int width, int height, GLuint fbo_color_attachment_0_tex_id)
 {

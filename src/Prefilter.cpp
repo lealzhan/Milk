@@ -21,17 +21,24 @@ bool Prefilter::Process(int argc, char *argv[])
 	const int nFaceCount = 6;
 
 	std::map<int, std::string> ID2side;
-	ID2side[0] = "right";
-	ID2side[1] = "left";
-	ID2side[2] = "top";
-	ID2side[3] = "bottom";
-	ID2side[4] = "front";
-	ID2side[5] = "back";
+	//ID2side[0] = "right";
+	//ID2side[1] = "left";
+	//ID2side[2] = "top";
+	//ID2side[3] = "bottom";
+	//ID2side[4] = "front";
+	//ID2side[5] = "back";
+	ID2side[0] = "x+";
+	ID2side[1] = "x-";
+	ID2side[2] = "y+";
+	ID2side[3] = "y-";
+	ID2side[4] = "z+";
+	ID2side[5] = "z-";
 
 	{
 		std::string image4processing = m_strImage;
 
 		std::string dirName = m_strOutputDir;
+
 		if (!CreateDirectory(stringToLPCSTR(dirName), NULL)){
 			std::cout << "CreateDirectory: " << dirName << " Failed " << std::endl;
 		}
@@ -207,9 +214,9 @@ bool Prefilter::Process(int argc, char *argv[])
 		for (unsigned int i = 0; i < nFaceCount; ++i)
 		{
 			if (m_bHDR)
-				Image::WriteHDRImg((float*)pDiffusePixelData[i], m_strOutputDir + "/diffuse/diffuse_" + ID2side[i] + std::string("_0.hdr"), diffuse_width, diffuse_height, 3, true);
+				Image::WriteHDRImg((float*)pDiffusePixelData[i], m_strOutputDir + "/diffuse/" + ID2side[i] + std::string(".hdr"), diffuse_width, diffuse_height, 3, true);
 			else
-				Image::WritePNGImg((unsigned char*)pDiffusePixelData[i], m_strOutputDir + "/diffuse/diffuse_" + ID2side[i] + std::string("_0.png"), diffuse_width, diffuse_height, 3, true);
+				Image::WritePNGImg((unsigned char*)pDiffusePixelData[i], m_strOutputDir + "/diffuse/" + ID2side[i] + std::string(".png"), diffuse_width, diffuse_height, 3, true);
 
 			delete pDiffusePixelData[i];
 		}
@@ -295,9 +302,9 @@ bool Prefilter::Process(int argc, char *argv[])
 			for (unsigned int i = 0; i < nFaceCount; ++i)
 			{
 				if (m_bHDR)
-					Image::WriteHDRImg((float*)pSpecularPixelData[i], m_strOutputDir + "/specular/specular_" + ID2side[i] + ("_") + std::to_string(mip) + std::string(".hdr"), mipWidth, mipHeight, 3, true);
+					Image::WriteHDRImg((float*)pSpecularPixelData[i], m_strOutputDir + "/specular/" + ID2side[i] + ("_") + std::to_string(mip) + std::string(".hdr"), mipWidth, mipHeight, 3, true);
 				else
-					Image::WritePNGImg((unsigned char*)pSpecularPixelData[i], m_strOutputDir + "/specular/specular_" + ID2side[i] + ("_") + std::to_string(mip) + std::string(".png"), mipWidth, mipHeight, 3, true);
+					Image::WritePNGImg((unsigned char*)pSpecularPixelData[i], m_strOutputDir + "/specular/" + ID2side[i] + ("_") + std::to_string(mip) + std::string(".png"), mipWidth, mipHeight, 3, true);
 
 				//if(pSpecularPixelData[i])
 				//	delete pSpecularPixelData[i];//»á±ÀÀ£
