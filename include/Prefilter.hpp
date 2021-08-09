@@ -8,7 +8,7 @@ public:
 	Prefilter(){};
 	~Prefilter(){};
 	
-	void Init(std::string strImage, std::string strShaderDir, std::string strOutputDir, bool bHDR, bool bP20 = false)
+	void Init(std::string strImage, std::string strShaderDir, std::string strOutputDir, bool bHDR = false, bool bP20 = false)
 	{
 		m_strImage = strImage;
 		m_strShaderDir = strShaderDir;
