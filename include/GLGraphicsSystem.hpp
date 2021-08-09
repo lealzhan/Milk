@@ -79,10 +79,9 @@ public:
 
 	static GLuint CreateTexture2DHDR(int width, int height, GLuint internal_rgb_mode, GLuint data_rgb_mode, void* host_data);
 
-	static GLuint CreateTextureCube(int width, int height, int channel_numb);
-
 	static GLuint CreateTextureCube(int width, int height, GLuint internal_rgb_mode, GLuint data_rgb_mode, unsigned char * host_data[6]);
 
+	static GLuint CreateTextureCube(int width, int height, int channel_numb, bool generate_mipmap = false);
 	static GLuint CreateTextureCubeHDR(int width, int height, int channel_numb, bool generate_mipmap = false);
 
 	static void GenerateTextureCubeMipmap(GLuint texture_id);

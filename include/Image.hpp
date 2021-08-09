@@ -24,15 +24,8 @@ public:
 	}
 
 	static bool ReadHDRImg(float*& data, const std::string& strImgFileName, int& width, int& height, int& channel_numb, bool if_origin_left_up = false);
-	static bool WriteHDRImg(float*& data, const std::string& strImgFileName, int width, int height, int channel_numb, bool if_origin_left_up = false);
-
-	static bool ReadJPGImg(unsigned char*& data, const std::string& strImgFileName, int& width, int& height, int& channel_numb, bool if_origin_left_up = false, bool if_gamm_corr = true);
-	static bool WriteJPGImg(unsigned char*& data, const std::string& strImgFileName, int width, int height, int channel_numb, bool if_origin_left_up = false);
+	static bool WriteHDRImg(float* data, const std::string& strImgFileName, int width, int height, int channel_numb, bool if_origin_left_up = false);
 
 	static bool WritePNGImg(unsigned char* data, const std::string& strImgFileName, int width, int height, int channel_numb, bool if_origin_left_up = false);
 
-	//no hdr supported
-	//no alpha: jpg, png, tif
-	//alpha: png, tif
-	static bool ReadLDR3ChannelImg(unsigned char*& data, const std::string& strImgFileName, int& width, int& height, int& channel_numb, bool if_origin_left_up = false , bool if_gamm_corr = false);
 };

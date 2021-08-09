@@ -216,28 +216,6 @@ GLuint GLGraphicsSystem::CreateTexture2DHDR(int width, int height, GLuint intern
 	return tex_id;
 }
 
-GLuint GLGraphicsSystem::CreateTextureCube(int width, int height, int channel_numb)
-{
-	GLuint internal_rgb_mode = GL_RGB;
-	if (channel_numb == 3) internal_rgb_mode = GL_RGB;
-	else if (channel_numb == 4) internal_rgb_mode = GL_RGBA;
-
-	GLuint tex_id;
-	glGenTextures(1, &tex_id);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, tex_id);
-	for (int i = 0; i < 6; i++){
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8/*GL_RGBA8*//*data_rgb_mode*/, width, height, 0, /*GL_RGBA*/internal_rgb_mode, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);// GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	return tex_id;
-}
-
 GLuint GLGraphicsSystem::CreateTextureCubeHDR(int width, int height, int channel_numb, bool generate_mipmap)
 {
 	GLuint tex_id;
@@ -259,6 +237,30 @@ GLuint GLGraphicsSystem::CreateTextureCubeHDR(int width, int height, int channel
 	}
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	return tex_id;
+}
+
+GLuint GLGraphicsSystem::CreateTextureCube(int width, int height, int channel_numb, bool generate_mipmap)
+{
+	GLuint tex_id;
+	(glGenTextures(1, &tex_id));
+	(glBindTexture(GL_TEXTURE_CUBE_MAP, tex_id));
+	for (int i = 0; i < 6; i++) {
+		(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB/*GL_RGBA8*//*data_rgb_mode*/, width, height, 0, /*GL_RGBA*/GL_RGB, GL_UNSIGNED_BYTE, NULL));
+	}
+	(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+	(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	if (!generate_mipmap) {
+		(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));// GL_LINEAR_MIPMAP_LINEAR);
+	}
+	else {
+		(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));// GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	}
+
+	(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 	return tex_id;
 }
 

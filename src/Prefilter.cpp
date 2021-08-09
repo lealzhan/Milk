@@ -139,11 +139,22 @@ bool Prefilter::Process(int argc, char *argv[])
 		//
 		// Part 1: Diffuse Prefilter Cubemap
 		//
+		void* pDiffusePixelData[6];
 		int diffuse_width = 128;
 		int diffuse_height = 128;
-		GLuint diffuse_output_texture_id = GLGraphicsSystem::CreateTexture2DHDR(diffuse_width, diffuse_height, 3);
+		GLuint diffuse_output_texture_id;
+		GLuint irradianceMap;
+		if (m_bHDR)
+		{
+			diffuse_output_texture_id = GLGraphicsSystem::CreateTexture2DHDR(diffuse_width, diffuse_height, 3);
+			irradianceMap = GLGraphicsSystem::CreateTextureCubeHDR(diffuse_width, diffuse_height, 3);
+		}
+		else
+		{
+			diffuse_output_texture_id = GLGraphicsSystem::CreateTexture2D(diffuse_width, diffuse_height, 3);
+			irradianceMap = GLGraphicsSystem::CreateTextureCube(diffuse_width, diffuse_height, 3);
+		}
 
-		GLuint irradianceMap = GLGraphicsSystem::CreateTextureCubeHDR(diffuse_width, diffuse_height, 3);
 		fs = m_strShaderDir + "gltfPrefilterDiffuse.fs";
 		GLuint gltfCubemapPrefilterDiffuseShader = GLGraphicsSystem::createProgram(File::Read(quad_vs.c_str()).c_str(), File::Read(fs.c_str()).c_str());
 
@@ -153,6 +164,9 @@ bool Prefilter::Process(int argc, char *argv[])
 			GLGraphicsSystem::SetViewClear(0.2f, 0.3f, 0.3f, 1.0f, GL_COLOR_BUFFER_BIT);
 
 			GLGraphicsSystem::UseProgram(gltfCubemapPrefilterDiffuseShader);
+
+			UNIFORM_UNION hdr; hdr.intVal = (int)m_bHDR;
+			GLGraphicsSystem::setUniform(gltfCubemapPrefilterDiffuseShader, "hdr", UNIFORM_TYPE::INT_TYPE, hdr);
 
 			UNIFORM_UNION o; o.intVal = 0;
 			GLGraphicsSystem::setUniform(gltfCubemapPrefilterDiffuseShader, "environmentMap", UNIFORM_TYPE::INT_TYPE, o);
@@ -184,21 +198,35 @@ bool Prefilter::Process(int argc, char *argv[])
 			glDeleteFramebuffers(1, &captureFBO);
 			GLGraphicsSystem::Finish();
 
-			pPixelData[i] = (float*)GLGraphicsSystem::TextureBuffer2DHDR2HostMem(diffuse_output_texture_id, diffuse_width, diffuse_height, 3);
+			if (m_bHDR)
+				pDiffusePixelData[i] = (float*)GLGraphicsSystem::TextureBuffer2DHDR2HostMem(diffuse_output_texture_id, diffuse_width, diffuse_height, 3);
+			else
+				pDiffusePixelData[i] = (unsigned char*)GLGraphicsSystem::TextureBuffer2D2HostMem(diffuse_output_texture_id, diffuse_width, diffuse_height, 3);
 		}
 
-		for (unsigned int i = 0; i < nFaceCount/*6*/; ++i)
+		for (unsigned int i = 0; i < nFaceCount; ++i)
 		{
-			Image::WriteHDRImg(pPixelData[i], m_strOutputDir + "/diffuse/diffuse_" + ID2side[i] + std::string("_0.hdr"), diffuse_width, diffuse_height, 3, true);
-			delete pPixelData[i];
+			if (m_bHDR)
+				Image::WriteHDRImg((float*)pDiffusePixelData[i], m_strOutputDir + "/diffuse/diffuse_" + ID2side[i] + std::string("_0.hdr"), diffuse_width, diffuse_height, 3, true);
+			else
+				Image::WritePNGImg((unsigned char*)pDiffusePixelData[i], m_strOutputDir + "/diffuse/diffuse_" + ID2side[i] + std::string("_0.png"), diffuse_width, diffuse_height, 3, true);
+
+			delete pDiffusePixelData[i];
 		}
 
 		//
 		// Part 2: Specular Prefilter Cubemap
 		//
-		int specular_width = 512;
-		int specular_height = 512;
-		GLuint prefilterMap = GLGraphicsSystem::CreateTextureCubeHDR(specular_width, specular_height, 3, true);
+		void* pSpecularPixelData[6] = { NULL };
+		int specular_width = 1024;
+		int specular_height = 1024;
+		GLuint prefilterMap;
+
+		if (m_bHDR)
+			prefilterMap = GLGraphicsSystem::CreateTextureCubeHDR(specular_width, specular_height, 3, true);
+		else
+			prefilterMap = GLGraphicsSystem::CreateTextureCube(specular_width, specular_height, 3, true);
+
 		fs = m_strShaderDir + "gltfPrefilterSpecular.fs";
 		GLuint gltfCubemapPrefilterSpecularShader = GLGraphicsSystem::createProgram(File::Read(quad_vs.c_str()).c_str(), File::Read(fs.c_str()).c_str());
 
@@ -208,7 +236,11 @@ bool Prefilter::Process(int argc, char *argv[])
 			// reisze framebuffer according to mip-level size.
 			unsigned int mipWidth = specular_width * std::pow(0.5, mip);
 			unsigned int mipHeight = specular_height * std::pow(0.5, mip);
-			GLuint output_texture_id_specular = GLGraphicsSystem::CreateTexture2DHDR(mipWidth, mipHeight, 3);
+			GLuint output_texture_id_specular;
+			if (m_bHDR)
+				output_texture_id_specular = GLGraphicsSystem::CreateTexture2DHDR(mipWidth, mipHeight, 3);
+			else
+				output_texture_id_specular = GLGraphicsSystem::CreateTexture2D(mipWidth, mipHeight, 3);
 
 			float roughness = (float)mip / (float)(maxMipLevels - 1);
 			for (unsigned int i = 0; i < nFaceCount; ++i)
@@ -217,6 +249,9 @@ bool Prefilter::Process(int argc, char *argv[])
 				GLGraphicsSystem::SetViewClear(0.2f, 0.3f, 0.3f, 1.0f, GL_COLOR_BUFFER_BIT);
 
 				GLGraphicsSystem::UseProgram(gltfCubemapPrefilterSpecularShader);
+
+				UNIFORM_UNION hdr; hdr.intVal = (int)m_bHDR;
+				GLGraphicsSystem::setUniform(gltfCubemapPrefilterSpecularShader, "hdr", UNIFORM_TYPE::INT_TYPE, hdr);
 
 				UNIFORM_UNION o; o.intVal = 0;
 				GLGraphicsSystem::setUniform(gltfCubemapPrefilterSpecularShader, "environmentMap", UNIFORM_TYPE::INT_TYPE, o);
@@ -251,13 +286,21 @@ bool Prefilter::Process(int argc, char *argv[])
 				glDeleteFramebuffers(1, &captureFBO);
 				GLGraphicsSystem::Finish();
 
-				pPixelData[i] = (float*)GLGraphicsSystem::TextureBuffer2DHDR2HostMem(output_texture_id_specular, mipWidth, mipHeight, 3);
+				if (m_bHDR)
+					pSpecularPixelData[i] = (float*)GLGraphicsSystem::TextureBuffer2DHDR2HostMem(output_texture_id_specular, mipWidth, mipHeight, 3);
+				else
+					pSpecularPixelData[i] = (unsigned char*)GLGraphicsSystem::TextureBuffer2D2HostMem(output_texture_id_specular, mipWidth, mipHeight, 3);
 			}
 
 			for (unsigned int i = 0; i < nFaceCount; ++i)
 			{
-				Image::WriteHDRImg(pPixelData[i], m_strOutputDir + "/specular/specular_" + ID2side[i] + ("_") + std::to_string(mip) + std::string(".hdr"), mipWidth, mipHeight, 3, true);
-				delete pPixelData[i];
+				if (m_bHDR)
+					Image::WriteHDRImg((float*)pSpecularPixelData[i], m_strOutputDir + "/specular/specular_" + ID2side[i] + ("_") + std::to_string(mip) + std::string(".hdr"), mipWidth, mipHeight, 3, true);
+				else
+					Image::WritePNGImg((unsigned char*)pSpecularPixelData[i], m_strOutputDir + "/specular/specular_" + ID2side[i] + ("_") + std::to_string(mip) + std::string(".png"), mipWidth, mipHeight, 3, true);
+
+				//if(pSpecularPixelData[i])
+				//	delete pSpecularPixelData[i];//»á±ÀÀ£
 			}
 
 			glDeleteTextures(1, &output_texture_id_specular);
