@@ -8,13 +8,16 @@ int main(int argc, char *argv[])
 	//freeimage debug log
 	FreeImage_SetOutputMessage(Image::FreeImageErrorHandler);
 
-	Prefilter newPrefilter;
-	newPrefilter.Init(
-		"C:/Users/lealz/Desktop/trunk/Milk/data/image/helipad.hdr",
-		"C:/Users/lealz/Desktop/trunk/Milk/shaders/",
-		"C:/Users/lealz/Desktop/trunk/Milk/result/",
+	IPrefilter* newPrefilter = IPrefilter::Create();
+	newPrefilter->Init(
+		"F:/Milk/data/image/helipad.hdr",
+		"F:/Milk/shaders/",
+		"F:/Milk/result/",
 		false,
 		true
 		);
-	return newPrefilter.Process(argc, argv);
+	newPrefilter->Process(argc, argv);
+
+	delete newPrefilter;
+	return true;
 }

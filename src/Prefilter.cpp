@@ -19,6 +19,11 @@ static LPCSTR stringToLPCSTR(std::string orig)
 	return cstr;
 }
 
+IPrefilter* IPrefilter::Create()
+{
+	return new Prefilter();
+}
+
 bool Prefilter::Process(int argc, char *argv[])
 {
 	const int nFaceCount = 6;

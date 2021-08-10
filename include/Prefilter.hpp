@@ -1,14 +1,16 @@
 #pragma once
 
 #include <string>
+#include "IPrefilter.hpp"
 
-class Prefilter
+class Prefilter : public IPrefilter
 {
 public:
 	Prefilter(){};
 	~Prefilter(){};
 	
-	void Init(std::string strImage, std::string strShaderDir, std::string strOutputDir, bool bHDR = false, bool bP20 = false)
+	virtual void Init(std::string strImage, std::string strShaderDir, std::string strOutputDir, 
+		bool bHDR = false, bool bP20 = false) override
 	{
 		m_strImage = strImage;
 		m_strShaderDir = strShaderDir;
@@ -16,12 +18,5 @@ public:
 		m_bHDR = bHDR;
 		m_bP20 = bP20;
 	};
-	bool Process(int argc, char *argv[]);
-
-private:
-	std::string m_strImage;		//Input HDR lat-long Environment Image
-	std::string m_strShaderDir;
-	std::string m_strOutputDir;
-	bool m_bHDR;				// true: output HDR format; false : output PNG format
-	bool m_bP20;
+	virtual bool Process(int argc, char *argv[]) override;
 };
