@@ -10,17 +10,6 @@
 
 const int const_smaples = 4096;
 
-// layout(push_constant, std140) uniform _u_parameter {
-//     layout(offset = 64) uint samples;
-//     uint padding;
-// } u_parameter;
-
-// layout (binding = 0) uniform samplerCube u_cubeMap;
-
-// layout (location = 0) in vec3 v_normal;
-
-// layout (location = 0) out vec4 ob_fragColor;
-
 uniform samplerCube environmentMap;
 uniform int hdr;
 uniform int p20;
@@ -71,13 +60,8 @@ vec3 renderGetLambertWeightedVector(vec2 e, vec3 normal)
     // z = cos(theta)
 
     vec3 H = normalize(vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta));
-    
-    //
-    
     vec3 bitangent = vec3(0.0, 1.0, 0.0);
-
     float NdotB = dot(normal, bitangent);
-
     if (NdotB == 1.0)
     {
         bitangent = vec3(0.0, 0.0, -1.0);
@@ -89,9 +73,6 @@ vec3 renderGetLambertWeightedVector(vec2 e, vec3 normal)
 
     vec3 tangent = cross(bitangent, normal);
     bitangent = cross(normal, tangent);
-    
-    //
-    
     return normalize(tangent * H.x + bitangent * H.y + normal * H.z);
 }
 
@@ -104,9 +85,7 @@ vec4 renderLambert(vec2 randomPoint, vec3 N)
     vec3 V = N;
 
     vec3 L = normalize(reflect(-V, H));
-        
     float NdotL = dot(N, L);
-        
     if (NdotL > 0.0)
     {   
         // Mipmap Filtered Samples 
@@ -114,14 +93,10 @@ vec4 renderLambert(vec2 randomPoint, vec3 N)
         // see https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
         
         float cubeWidth = float(textureSize(environmentMap, 0).x);
-
         float pdf = max(NdotL * UX3D_MATH_INV_PI, 0.0);
-            
         float solidAngleTexel = 4.0f * UX3D_MATH_PI / (6.0f * cubeWidth * cubeWidth);
         float solidAngleSample = 1.0f / (float(const_smaples) * pdf);
-            
         float lod = 0.5f * log2(solidAngleSample / solidAngleTexel);
-        
         return vec4(texture(environmentMap, H, lod).rgb, 1.0);
     }
     
@@ -133,10 +108,7 @@ void main(void)
     vec3 N = normalize(WorldPos);//v_normal);
 	if(p20!=0)
 		N = mat3(1,0,0, 0,0,1, 0,1,0) * N; //gaode coordinate transform
-		
-    //ob_fragColor = texture(environmentMap, N, 0); return;//test
     vec4 colorLambert = vec4(0.0, 0.0, 0.0, 0.0);
-
     for (uint sampleIndex = 0; sampleIndex < const_smaples; sampleIndex++)
     {
         vec2 randomPoint = randomHammersley(sampleIndex, const_smaples);

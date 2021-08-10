@@ -4,17 +4,6 @@
 #define UX3D_MATH_INV_PI (1.0 / 3.1415926535897932384626433832795)
 
 const int const_smaples = 4096;
-
-// layout(push_constant, std140) uniform _u_parameter {
-//     layout(offset = 64) uint samples;
-//     float roughness;
-// } u_parameter;
-
-// layout (binding = 0) uniform samplerCube u_cubeMap;
-
-// layout (location = 0) in vec3 v_normal;
-
-// layout (location = 0) out vec4 ob_fragColor;
 uniform float u_roughness;
 uniform samplerCube environmentMap;
 uniform int hdr;
@@ -53,7 +42,6 @@ vec2 randomHammersley(uint i, uint N)
     return vec2(float(i)/float(N), RadicalInverse_VdC(i));
 }
 
-
 vec3 renderGetGGXWeightedVector(vec2 e, vec3 normal, float roughness)
 {
     float alpha = roughness * roughness;
@@ -68,13 +56,8 @@ vec3 renderGetGGXWeightedVector(vec2 e, vec3 normal, float roughness)
     // z = cos(theta)
 
     vec3 H = normalize(vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta));
-    
-    //
-    
     vec3 bitangent = vec3(0.0, 1.0, 0.0);
-
     float NdotB = dot(normal, bitangent);
-
     if (NdotB == 1.0)
     {
         bitangent = vec3(0.0, 0.0, -1.0);
@@ -83,23 +66,16 @@ vec3 renderGetGGXWeightedVector(vec2 e, vec3 normal, float roughness)
     {
         bitangent = vec3(0.0, 0.0, 1.0);
     }
-
     vec3 tangent = cross(bitangent, normal);
     bitangent = cross(normal, tangent);
-    
-    //
-    
     return normalize(tangent * H.x + bitangent * H.y + normal * H.z);
 }
 
 float ndfTrowbridgeReitzGGX(float NdotH, float roughness)
 {
     float alpha = roughness * roughness;
-    
     float alpha2 = alpha * alpha;
-    
     float divisor = NdotH * NdotH * (alpha2 - 1.0) + 1.0;
-        
     return alpha2 / (UX3D_MATH_PI * divisor * divisor); 
 }
 
@@ -110,35 +86,25 @@ vec4 renderCookTorrance(vec2 randomPoint, vec3 N, float roughness)
     // Note: reflect takes incident vector.
     // Note: N = V
     vec3 V = N;
-    
     vec3 L = normalize(reflect(-V, H));
-    
     float NdotL = dot(N, L);
-
     if (NdotL > 0.0)
     {
         float lod = 0.0;
-
         if (roughness > 0.0)
         {    
             // Mipmap Filtered Samples
             // see https://github.com/derkreature/IBLBaker
             // see https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch20.html
-            
             float cubeWidth = float(textureSize(environmentMap, 0).x);
-        
             float VdotH = dot(V, H);
             float NdotH = dot(N, H);
-        
             float D = ndfTrowbridgeReitzGGX(NdotH, roughness);
             float pdf = max(D * NdotH / (4.0 * VdotH), 0.0);
-            
             float solidAngleTexel = 4.0 * UX3D_MATH_PI / (6.0 * cubeWidth * cubeWidth);
             float solidAngleSample = 1.0 / (const_smaples * pdf);
-            
             lod = 0.5 * log2(solidAngleSample / solidAngleTexel);
         }
-	    
         return vec4(textureLod(environmentMap, L, lod).rgb * NdotL, NdotL);
     }
 	
