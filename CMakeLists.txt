@@ -5,11 +5,6 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 message(STATUS "Windows平台")
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 -std=c++11")
-SET(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows")
-SET(CMAKE_RELEASE_POSTFIX "" CACHE STRING "add a postfix, usually empty on windows")
-
-
 FILE (GLOB HEADER_FILES
 	include/*.h  
 	include/*.hpp  
