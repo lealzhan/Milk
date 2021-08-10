@@ -1,6 +1,8 @@
 #include "Prefilter.hpp"
 
 #include <windows.h>
+#include <atlstr.h>
+
 #include <map>
 
 #include <glm/glm.hpp>
@@ -13,7 +15,8 @@
 
 static LPCSTR stringToLPCSTR(std::string orig)
 {
-	return orig.c_str();
+	CString cstr(orig.c_str());
+	return cstr;
 }
 
 bool Prefilter::Process(int argc, char *argv[])
