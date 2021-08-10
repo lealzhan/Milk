@@ -2,7 +2,7 @@
 This is a standalone **Environment Map Prefiltering Program** for **IBL(Image Based Lighting) of gltf spec**. 
 
 # Theory
-For the theory behind this program, please refer to this [article](doc/PBR_material.md).
+For the theory behind this program, please refer to this [article](doc/PBR_material.html).
 
 # Building
 * Install CMake 3.10.2+
