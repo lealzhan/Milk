@@ -9,10 +9,18 @@ int main(int argc, char *argv[])
 	FreeImage_SetOutputMessage(Image::FreeImageErrorHandler);
 
 	IPrefilter* newPrefilter = IPrefilter::Create();
+	//newPrefilter->Init(
+	//	"F:/Milk/data/image/helipad.hdr",
+	//	"F:/Milk/shaders/",
+	//	"F:/Milk/result/",
+	//	false,
+	//	true
+	//	);
 	newPrefilter->Init(
-		"F:/Milk/data/image/helipad.hdr",
-		"F:/Milk/shaders/",
-		"F:/Milk/result/",
+		"C:/Users/lealz/Desktop/trunk/Milk/data/image/helipad.hdr",
+		"C:/Users/lealz/Desktop/trunk/Milk/shaders/",
+		"C:/Users/lealz/Desktop/trunk/Milk/result/",
+		10,
 		false,
 		true
 		);

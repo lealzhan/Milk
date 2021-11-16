@@ -13,7 +13,7 @@ public:
 	};
 	~IPrefilter(){};
 	
-	virtual void Init(std::string strImage, std::string strShaderDir, std::string strOutputDir, bool bHDR = false, bool bP20 = false) = 0;
+	virtual void Init(std::string strImage, std::string strShaderDir, std::string strOutputDir, int nSpeculatMipmap, bool bHDR = false, bool bP20 = false) = 0;
 	virtual bool Process(int argc, char *argv[]) = 0;
 
 protected:
@@ -22,4 +22,5 @@ protected:
 	std::string m_strOutputDir;
 	bool m_bHDR;				// true: output HDR format; false : output PNG format
 	bool m_bP20;
+	int m_nSpeculatMipmap;
 };

@@ -27,6 +27,9 @@ IPrefilter* IPrefilter::Create()
 bool Prefilter::Process(int argc, char *argv[])
 {
 	const int nFaceCount = 6;
+	//const int nSpeculatMipmap = 11;
+	int nMaxWidth = pow(2, m_nSpeculatMipmap - 1);
+	int nMaxHeight = nMaxWidth;
 
 	std::map<int, std::string> ID2side;
 	//ID2side[0] = "right";
@@ -92,8 +95,8 @@ bool Prefilter::Process(int argc, char *argv[])
 		Image::ReadHDRImg(bits, image4processing, width, height, channel_numb);
 		GLuint image4processing_text_id = GLGraphicsSystem::CreateTexture2DHDR(width, height, GL_RGB32F, GL_RGB, bits);
 
-		GLuint envCubemap = GLGraphicsSystem::CreateTextureCubeHDR(1024, 1024, 3);
-		GLuint temporatyOutputTextureId = GLGraphicsSystem::CreateTexture2DHDR(1024, 1024, 3);
+		GLuint envCubemap = GLGraphicsSystem::CreateTextureCubeHDR(nMaxWidth, nMaxHeight, 3);
+		GLuint temporatyOutputTextureId = GLGraphicsSystem::CreateTexture2DHDR(nMaxWidth, nMaxHeight, 3);
 
 		std::string quad_vs = m_strShaderDir + "cubemap.vs";
 		std::string fs = m_strShaderDir + "equirectangularToCubemap.fs";
@@ -103,7 +106,7 @@ bool Prefilter::Process(int argc, char *argv[])
 		float* pPixelData[nFaceCount];
 		for (unsigned int i = 0; i < nFaceCount; ++i)
 		{
-			GLGraphicsSystem::SetViewPort(0, 0, 1024, 1024); 
+			GLGraphicsSystem::SetViewPort(0, 0, nMaxWidth, nMaxHeight);
 			GLGraphicsSystem::SetViewClear(0.2f, 0.3f, 0.3f, 1.0f, GL_COLOR_BUFFER_BIT);
 
 			GLGraphicsSystem::UseProgram(equirectangularToCubemapShader);
@@ -123,7 +126,7 @@ bool Prefilter::Process(int argc, char *argv[])
 					captureProjectionUniform.f4x4[m][n] = captureProjection[m][n];
 			GLGraphicsSystem::setUniform(equirectangularToCubemapShader, "projection", UNIFORM_TYPE::MATRIX4F_TYPE, captureProjectionUniform);
 
-			GLuint captureFBO = GLGraphicsSystem::CreateFrameBufferWithCubeTextureId(1024, 1024, envCubemap, i);
+			GLuint captureFBO = GLGraphicsSystem::CreateFrameBufferWithCubeTextureId(nMaxWidth, nMaxHeight, envCubemap, i);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 			glActiveTexture(GL_TEXTURE0);
@@ -135,16 +138,16 @@ bool Prefilter::Process(int argc, char *argv[])
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			GLGraphicsSystem::UseProgram(0);
 
-			GLGraphicsSystem::FrameBuffer2ReadbackTextureHandle(captureFBO, 0, temporatyOutputTextureId, 1024, 1024);
+			GLGraphicsSystem::FrameBuffer2ReadbackTextureHandle(captureFBO, 0, temporatyOutputTextureId, nMaxWidth, nMaxHeight);
 			glDeleteFramebuffers(1, &captureFBO);
 			GLGraphicsSystem::Finish();
 
-			pPixelData[i] = (float*)GLGraphicsSystem::TextureBuffer2DHDR2HostMem(temporatyOutputTextureId, 1024, 1024, 3);
+			pPixelData[i] = (float*)GLGraphicsSystem::TextureBuffer2DHDR2HostMem(temporatyOutputTextureId, nMaxWidth, nMaxHeight, 3);
 		}
 
 		for (unsigned int i = 0; i < nFaceCount; ++i)
 		{
-			Image::WriteHDRImg(pPixelData[i], m_strOutputDir + "/cubemap/" + ID2side[i] + std::string(".hdr"), 1024, 1024, 3, true);
+			Image::WriteHDRImg(pPixelData[i], m_strOutputDir + "/cubemap/" + ID2side[i] + std::string(".hdr"), nMaxWidth, nMaxHeight, 3, true);
 			delete pPixelData[i];
 		}
 
@@ -236,8 +239,8 @@ bool Prefilter::Process(int argc, char *argv[])
 		// Part 2: Specular Prefilter Cubemap
 		//
 		void* pSpecularPixelData[6] = { NULL };
-		int specular_width = 1024;
-		int specular_height = 1024;
+		int specular_width = nMaxWidth;
+		int specular_height = nMaxHeight;
 		GLuint prefilterMap;
 
 		if (m_bHDR)
